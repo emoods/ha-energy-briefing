@@ -1,0 +1,201 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Energy Briefing",
+        "description": "Witzige tägliche Berichte über PV, Batterie und Auto – von einer KI aus euren eigenen Daten geschrieben.\n\nWähle die Berichtssprache und einen KI-Anbieter. Mit **Keine KI** gibt es einfache Textbausteine.",
+        "data": {
+          "language": "Berichtssprache",
+          "provider": "KI-Anbieter"
+        }
+      },
+      "credentials": {
+        "title": "KI-Anbieter verbinden",
+        "description": "Zugangsdaten für **{provider}** eingeben. Sie bleiben in Home Assistant und gehen nur an diesen Anbieter.",
+        "data": {
+          "service_account_json": "Service-Konto-Schlüssel (JSON)",
+          "location": "Region",
+          "api_key": "API-Schlüssel",
+          "base_url": "Basis-URL (OpenAI-kompatibel)",
+          "ai_task_entity": "AI-Task-Entität"
+        },
+        "data_description": {
+          "service_account_json": "Den kompletten JSON-Schlüssel eines Google-Cloud-Service-Kontos mit der Rolle „Vertex AI User“ einfügen.",
+          "location": "`global` bietet die neuesten Gemini-Modelle.",
+          "base_url": "Zum Beispiel OpenRouter, Mistral, Groq oder ein lokales Ollama (http://host:11434/v1)."
+        }
+      },
+      "model": {
+        "title": "Modell wählen",
+        "description": "{count} Modelle gefunden. Vorschlag: **{suggested}** (klein, schnell und günstig reicht für einen Bericht völlig).",
+        "data": {
+          "model": "Modell"
+        }
+      },
+      "sources": {
+        "title": "Euer Energiesystem",
+        "description": "Energie-Dashboard: PV {solar} · Netz {grid} · PV-Prognose {forecast}\n\nDie Vorschläge wurden automatisch erkannt – leer lassen, was ihr nicht habt.",
+        "data": {
+          "weather_entity": "Wetter (für den Mehrtages-Ausblick)",
+          "battery_soc_entity": "Ladestand Hausbatterie",
+          "battery_capacity_kwh": "Batteriekapazität",
+          "battery_empty_soc": "Batterie gilt als leer bei",
+          "base_load_kw": "Durchschnittlicher Hausverbrauch",
+          "car_connected_entity": "Auto angesteckt",
+          "car_soc_entity": "Ladestand Auto",
+          "washer_entity": "Waschmaschine",
+          "dryer_entity": "Trockner",
+          "dishwasher_entity": "Spülmaschine",
+          "ac_heating": "An sonnigen Tagen Heizen mit den Klimaanlagen vorschlagen"
+        }
+      },
+      "delivery": {
+        "title": "Wann und an wen",
+        "description": "Berichte vor 11 Uhr behandeln heute, 11–16 Uhr sind ein Mittags-Update, spätere schauen auf morgen.",
+        "data": {
+          "notify_services": "Senden an",
+          "times_weekday": "Uhrzeiten Montag–Freitag",
+          "times_weekend": "Uhrzeiten Samstag–Sonntag",
+          "weekly_review_day": "Wochenrückblick (im Abendbericht)",
+          "price_import": "Strompreis",
+          "price_export": "Einspeisevergütung",
+          "price_gas": "Gaspreis pro Einheit",
+          "evcc_url": "evcc-URL (optional, für E-Auto-Statistik)",
+          "fallback_ai_task_entity": "Ersatz-AI-Task-Entität (optional)",
+          "click_path": "Beim Antippen öffnen"
+        },
+        "data_description": {
+          "times_weekday": "Mit Komma getrennt, z. B. 08:00, 12:00, 20:00",
+          "evcc_url": "z. B. http://192.168.1.10:7070"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Anmeldung fehlgeschlagen – Schlüssel und Berechtigungen prüfen.",
+      "cannot_connect": "Anbieter nicht erreichbar.",
+      "invalid_service_account": "Das ist kein gültiger Service-Konto-Schlüssel (JSON).",
+      "no_models": "Der Anbieter hat keine nutzbaren Modelle geliefert.",
+      "invalid_times": "Uhrzeiten im Format 08:00, 12:00 angeben.",
+      "unknown": "Unerwarteter Fehler, siehe Protokoll."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Energy Briefing",
+        "data": {
+          "language": "Berichtssprache",
+          "model": "Modell"
+        }
+      },
+      "sources": {
+        "title": "Euer Energiesystem",
+        "description": "Leer lassen, was ihr nicht habt.",
+        "data": {
+          "weather_entity": "Wetter (für den Mehrtages-Ausblick)",
+          "battery_soc_entity": "Ladestand Hausbatterie",
+          "battery_capacity_kwh": "Batteriekapazität",
+          "battery_empty_soc": "Batterie gilt als leer bei",
+          "base_load_kw": "Durchschnittlicher Hausverbrauch",
+          "car_connected_entity": "Auto angesteckt",
+          "car_soc_entity": "Ladestand Auto",
+          "washer_entity": "Waschmaschine",
+          "dryer_entity": "Trockner",
+          "dishwasher_entity": "Spülmaschine",
+          "ac_heating": "An sonnigen Tagen Heizen mit den Klimaanlagen vorschlagen"
+        }
+      },
+      "delivery": {
+        "title": "Wann und an wen",
+        "data": {
+          "notify_services": "Senden an",
+          "times_weekday": "Uhrzeiten Montag–Freitag",
+          "times_weekend": "Uhrzeiten Samstag–Sonntag",
+          "weekly_review_day": "Wochenrückblick (im Abendbericht)",
+          "price_import": "Strompreis",
+          "price_export": "Einspeisevergütung",
+          "price_gas": "Gaspreis pro Einheit",
+          "evcc_url": "evcc-URL (optional, für E-Auto-Statistik)",
+          "fallback_ai_task_entity": "Ersatz-AI-Task-Entität (optional)",
+          "click_path": "Beim Antippen öffnen"
+        }
+      }
+    },
+    "error": {
+      "invalid_times": "Uhrzeiten im Format 08:00, 12:00 angeben."
+    }
+  },
+  "selector": {
+    "language": {
+      "options": {
+        "en": "English",
+        "de": "Deutsch"
+      }
+    },
+    "provider": {
+      "options": {
+        "vertex": "Google Vertex AI (Service-Konto)",
+        "gemini_api": "Google Gemini API (API-Schlüssel)",
+        "openai": "OpenAI (API-Schlüssel)",
+        "anthropic": "Anthropic Claude (API-Schlüssel)",
+        "openai_compatible": "OpenAI-kompatibel (OpenRouter, Mistral, Ollama, …)",
+        "ha_ai_task": "Home-Assistant-AI-Task-Entität",
+        "none": "Keine KI (Textbausteine)"
+      }
+    },
+    "weekday": {
+      "options": {
+        "mon": "Montag",
+        "tue": "Dienstag",
+        "wed": "Mittwoch",
+        "thu": "Donnerstag",
+        "fri": "Freitag",
+        "sat": "Samstag",
+        "sun": "Sonntag",
+        "off": "Aus"
+      }
+    },
+    "kind": {
+      "options": {
+        "morning": "Morgen",
+        "midday": "Mittag",
+        "evening": "Abend (Ausblick morgen)"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "briefing": {
+        "name": "Bericht"
+      }
+    },
+    "button": {
+      "generate": {
+        "name": "Bericht erstellen"
+      },
+      "generate_and_notify": {
+        "name": "Bericht erstellen und senden"
+      }
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Bericht erstellen",
+      "description": "Erstellt sofort einen neuen Energiebericht.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Eintrag",
+          "description": "Nur dieser Energy-Briefing-Eintrag (Standard: alle)."
+        },
+        "kind": {
+          "name": "Art",
+          "description": "Morgen, Mittag oder Abend. Standard: nach Uhrzeit."
+        },
+        "notify": {
+          "name": "Benachrichtigung senden",
+          "description": "Auch an die eingestellten Handys schicken."
+        }
+      }
+    }
+  }
+}

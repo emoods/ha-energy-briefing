@@ -1,0 +1,18 @@
+generate:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: energy_briefing
+    kind:
+      selector:
+        select:
+          options:
+            - morning
+            - midday
+            - evening
+          translation_key: kind
+    notify:
+      default: false
+      selector:
+        boolean:

@@ -1,0 +1,201 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Energy Briefing",
+        "description": "Witty daily briefings about your solar, battery and car – written by an LLM from your own data.\n\nPick the briefing language and an AI provider. You can also choose **No AI** for simple template texts.",
+        "data": {
+          "language": "Briefing language",
+          "provider": "AI provider"
+        }
+      },
+      "credentials": {
+        "title": "Connect the AI provider",
+        "description": "Enter the credentials for **{provider}**. They stay in Home Assistant and are only sent to that provider.",
+        "data": {
+          "service_account_json": "Service account JSON key",
+          "location": "Location (region)",
+          "api_key": "API key",
+          "base_url": "Base URL (OpenAI compatible)",
+          "ai_task_entity": "AI Task entity"
+        },
+        "data_description": {
+          "service_account_json": "Paste the complete JSON key of a Google Cloud service account with the Vertex AI User role.",
+          "location": "`global` serves the newest Gemini models.",
+          "base_url": "For example OpenRouter, Mistral, Groq or a local Ollama (http://host:11434/v1)."
+        }
+      },
+      "model": {
+        "title": "Choose the model",
+        "description": "Found {count} models. Suggested: **{suggested}** (small, fast and cheap is plenty for a briefing).",
+        "data": {
+          "model": "Model"
+        }
+      },
+      "sources": {
+        "title": "Your energy system",
+        "description": "Energy dashboard: solar {solar} · grid {grid} · solar forecast {forecast}\n\nSuggestions were detected automatically – leave anything empty that you don't have.",
+        "data": {
+          "weather_entity": "Weather (for the multi-day outlook)",
+          "battery_soc_entity": "Home battery state of charge",
+          "battery_capacity_kwh": "Battery capacity",
+          "battery_empty_soc": "Battery counts as empty at",
+          "base_load_kw": "Average house load",
+          "car_connected_entity": "Car plugged in",
+          "car_soc_entity": "Car state of charge",
+          "washer_entity": "Washing machine",
+          "dryer_entity": "Dryer",
+          "dishwasher_entity": "Dishwasher",
+          "ac_heating": "Suggest heating with the air conditioners on sunny days"
+        }
+      },
+      "delivery": {
+        "title": "When and to whom",
+        "description": "Briefings before 11:00 are about today, 11:00–16:00 are a midday update, later ones look at tomorrow.",
+        "data": {
+          "notify_services": "Send to",
+          "times_weekday": "Times Monday–Friday",
+          "times_weekend": "Times Saturday–Sunday",
+          "weekly_review_day": "Weekly review (in the evening briefing)",
+          "price_import": "Grid price",
+          "price_export": "Feed-in tariff",
+          "price_gas": "Gas price per unit",
+          "evcc_url": "evcc URL (optional, for EV statistics)",
+          "fallback_ai_task_entity": "Fallback AI Task entity (optional)",
+          "click_path": "Open on tap"
+        },
+        "data_description": {
+          "times_weekday": "Comma separated, e.g. 08:00, 12:00, 20:00",
+          "evcc_url": "e.g. http://192.168.1.10:7070"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Authentication failed – check the key and its permissions.",
+      "cannot_connect": "Cannot reach the provider.",
+      "invalid_service_account": "This is not a valid service account JSON key.",
+      "no_models": "The provider returned no usable models.",
+      "invalid_times": "Use times like 08:00, 12:00.",
+      "unknown": "Unexpected error, see the log."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Energy Briefing",
+        "data": {
+          "language": "Briefing language",
+          "model": "Model"
+        }
+      },
+      "sources": {
+        "title": "Your energy system",
+        "description": "Leave anything empty that you don't have.",
+        "data": {
+          "weather_entity": "Weather (for the multi-day outlook)",
+          "battery_soc_entity": "Home battery state of charge",
+          "battery_capacity_kwh": "Battery capacity",
+          "battery_empty_soc": "Battery counts as empty at",
+          "base_load_kw": "Average house load",
+          "car_connected_entity": "Car plugged in",
+          "car_soc_entity": "Car state of charge",
+          "washer_entity": "Washing machine",
+          "dryer_entity": "Dryer",
+          "dishwasher_entity": "Dishwasher",
+          "ac_heating": "Suggest heating with the air conditioners on sunny days"
+        }
+      },
+      "delivery": {
+        "title": "When and to whom",
+        "data": {
+          "notify_services": "Send to",
+          "times_weekday": "Times Monday–Friday",
+          "times_weekend": "Times Saturday–Sunday",
+          "weekly_review_day": "Weekly review (in the evening briefing)",
+          "price_import": "Grid price",
+          "price_export": "Feed-in tariff",
+          "price_gas": "Gas price per unit",
+          "evcc_url": "evcc URL (optional, for EV statistics)",
+          "fallback_ai_task_entity": "Fallback AI Task entity (optional)",
+          "click_path": "Open on tap"
+        }
+      }
+    },
+    "error": {
+      "invalid_times": "Use times like 08:00, 12:00."
+    }
+  },
+  "selector": {
+    "language": {
+      "options": {
+        "en": "English",
+        "de": "Deutsch"
+      }
+    },
+    "provider": {
+      "options": {
+        "vertex": "Google Vertex AI (service account)",
+        "gemini_api": "Google Gemini API (API key)",
+        "openai": "OpenAI (API key)",
+        "anthropic": "Anthropic Claude (API key)",
+        "openai_compatible": "OpenAI compatible (OpenRouter, Mistral, Ollama, …)",
+        "ha_ai_task": "Home Assistant AI Task entity",
+        "none": "No AI (template text)"
+      }
+    },
+    "weekday": {
+      "options": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday",
+        "off": "Off"
+      }
+    },
+    "kind": {
+      "options": {
+        "morning": "Morning",
+        "midday": "Midday",
+        "evening": "Evening (tomorrow)"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "briefing": {
+        "name": "Briefing"
+      }
+    },
+    "button": {
+      "generate": {
+        "name": "Create briefing"
+      },
+      "generate_and_notify": {
+        "name": "Create and send briefing"
+      }
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Create briefing",
+      "description": "Creates a new energy briefing now.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Entry",
+          "description": "Only this Energy Briefing entry (default: all)."
+        },
+        "kind": {
+          "name": "Kind",
+          "description": "Morning, midday or evening. Default: based on the time of day."
+        },
+        "notify": {
+          "name": "Send notification",
+          "description": "Also send it to the configured phones."
+        }
+      }
+    }
+  }
+}
