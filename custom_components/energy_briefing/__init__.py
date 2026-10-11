@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import voluptuous as vol
 
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.loader import async_get_integration
 
 from .const import DOMAIN, KINDS
 from .manager import BriefingManager
@@ -19,6 +24,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 type EnergyBriefingConfigEntry = ConfigEntry[BriefingManager]
 
+CARD_URL = f"/{DOMAIN}/energy-briefing-card.js"
 SERVICE_GENERATE = "generate"
 GENERATE_SCHEMA = vol.Schema(
     {
@@ -30,8 +36,17 @@ GENERATE_SCHEMA = vol.Schema(
 )
 
 
+async def _async_register_card(hass: HomeAssistant) -> None:
+    """Serve the bundled Lovelace card and load it in every dashboard."""
+    path = Path(__file__).parent / "frontend" / "energy-briefing-card.js"
+    await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), False)])
+    version = (await async_get_integration(hass, DOMAIN)).version
+    add_extra_js_url(hass, f"{CARD_URL}?v={version}")
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register the generate service."""
+    """Register the dashboard card and the generate service."""
+    await _async_register_card(hass)
 
     async def _generate(call: ServiceCall) -> ServiceResponse:
         entries = [

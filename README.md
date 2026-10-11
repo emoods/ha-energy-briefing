@@ -77,24 +77,33 @@ If everything fails, a template briefing is sent anyway.
 
 ## Dashboard card
 
-A Markdown card that shows the latest briefing:
+The integration ships its own card – nothing to copy or install separately.
+
+Dashboard → ✏️ Edit → **Add card** → search for **Energy Briefing**. The sensor is
+picked automatically; you can toggle traffic lights, outlook, details, buttons and footer.
 
 ```yaml
-type: markdown
-content: >-
-  {% set b = 'sensor.energy_briefing_briefing' %}
-  ## {{ states(b) }}
-
-  {{ state_attr(b, 'summary') }}
-
-  {% for l in state_attr(b, 'lights') or [] %}{{ l.icon }} {{ l.level_icon }}{% if l.hint %} {{ l.hint }}{% endif %}&nbsp;&nbsp; {% endfor %}
-
-  {% for o in state_attr(b, 'outlook') or [] %}**{{ o.day }}** {{ o.icon }}{% if o.pv_kwh %} {{ o.pv_kwh | round(0) | int }} kWh{% endif %}&nbsp;&nbsp; {% endfor %}
-
-  {{ state_attr(b, 'details') }}
-
-  <sub>{{ as_timestamp(state_attr(b, 'generated_at')) | timestamp_custom('%a %H:%M') }} · {{ state_attr(b, 'source') }}</sub>
+type: custom:energy-briefing-card
+entity: sensor.energy_briefing_briefing
+# optional, all default to true
+show_lights: true
+show_outlook: true
+show_details: true
+show_buttons: true
+show_footer: true
 ```
+
+The ⚙️ icon in the card (admins only) opens the integration settings.
+
+## Settings
+
+Settings → Devices & services → **Energy Briefing** → **Configure**:
+
+1. Briefing language and model
+2. Your energy system (battery, car, appliances, weather, base load)
+3. Delivery (phones, times, weekly review, prices, evcc URL, fallback AI)
+
+Changes apply immediately (the integration reloads).
 
 ## Privacy
 
