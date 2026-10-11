@@ -83,6 +83,9 @@ SYSTEM_PROMPT = {
         "Evening briefing: focus on tomorrow and whether the battery lasts the night. "
         "Weekly review (if present): add a short, fun summary of the week with money saved. "
         "Mention system problems only if listed under 'problems'. Use € and kWh. "
+        "If an appliance is already running, do not tell them to start it – at most say the timing is good. "
+        "Details: at most 5 short bullets, only things that change a decision or are genuinely interesting; "
+        "do not repeat numbers from the summary and do not list raw facts. "
         "The details must be a markdown bullet list."
     ),
     "de": (
@@ -95,6 +98,9 @@ SYSTEM_PROMPT = {
         "Abendbericht: Fokus auf morgen und ob die Batterie die Nacht schafft. "
         "Wochenrückblick (falls vorhanden): kurze, lustige Zusammenfassung der Woche mit gesparten Euro. "
         "Systemprobleme nur erwähnen, wenn sie unter 'problems' stehen. Verwende € und kWh. "
+        "Läuft ein Gerät bereits, nicht zum Einschalten auffordern – höchstens sagen, dass das Timing passt. "
+        "Details: höchstens 5 kurze Stichpunkte, nur was eine Entscheidung ändert oder wirklich interessant ist; "
+        "keine Zahlen aus der Zusammenfassung wiederholen und keine Rohdaten auflisten. "
         "Die Details sind eine Markdown-Aufzählung."
     ),
 }
@@ -384,6 +390,18 @@ class BriefingBuilder:
                         sunny = day_fc.get("condition") in GOOD_CONDITIONS | FAIR_CONDITIONS
                         add("ac_heating", "green" if spare >= 6 and sunny else "yellow", best_window)
 
+        # --- PV so far ----------------------------------------------------
+        def stat_kwh(stat_id: str, value: float | None) -> float | None:
+            if value is None:
+                return None
+            state = hass.states.get(stat_id)
+            unit = state.attributes.get("unit_of_measurement") if state else None
+            return value / 1000 if unit == "Wh" else value
+
+        pv_so_far = None
+        if kind != KIND_MORNING and solar_stat:
+            pv_so_far = stat_kwh(solar_stat, await self._today_change(solar_stat))
+
         # --- outlook ----------------------------------------------------
         daily_need = base_load * 24
         outlook: list[dict[str, Any]] = []
@@ -397,6 +415,8 @@ class BriefingBuilder:
             kwh = None
             if hourly and date in (today, tomorrow):
                 kwh = sum(v for k, v in hourly.items() if k.date() == date) / 1000 * accuracy
+                if date == today and pv_so_far is not None and fc_rest is not None:
+                    kwh = max(kwh, pv_so_far + fc_rest * accuracy)
             if kwh is not None:
                 ratio = kwh / daily_need if daily_need else 0
                 rating = "great" if ratio >= 2 else "good" if ratio >= 1.2 else "fair" if ratio >= 0.6 else "poor"
@@ -486,12 +506,6 @@ class BriefingBuilder:
             empty_time = now + timedelta(hours=hours)
             battery["night_lasts"] = bool(sunrise and empty_time >= sunrise)
             battery["empty_at"] = None if battery["night_lasts"] else empty_time.strftime("%H:%M")
-
-        pv_so_far = None
-        if kind == KIND_MIDDAY and solar_stat:
-            value = await self._today_change(solar_stat)
-            if value is not None:
-                pv_so_far = kwh([solar_stat], {solar_stat: value})
 
         # --- appliances / car ------------------------------------------
         appliances = {}

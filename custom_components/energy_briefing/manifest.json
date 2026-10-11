@@ -1,14 +1,25 @@
 {
   "domain": "energy_briefing",
   "name": "Energy Briefing",
-  "after_dependencies": ["ai_task", "energy", "notify", "weather"],
-  "codeowners": ["@emoods"],
+  "after_dependencies": [
+    "ai_task",
+    "energy",
+    "notify",
+    "weather"
+  ],
+  "codeowners": [
+    "@emoods"
+  ],
   "config_flow": true,
-  "dependencies": ["recorder"],
+  "dependencies": [
+    "recorder"
+  ],
   "documentation": "https://github.com/emoods/ha-energy-briefing",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/emoods/ha-energy-briefing/issues",
-  "requirements": ["google-auth>=2.20.0"],
-  "version": "0.1.0"
+  "requirements": [
+    "google-auth>=2.20.0"
+  ],
+  "version": "0.1.1"
 }

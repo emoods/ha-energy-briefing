@@ -81,7 +81,7 @@ class BriefingManager:
                 async_track_time_change(self.hass, _run, hour=hour, minute=minute, second=0)
             )
 
-    async def async_generate(self, kind: str | None = None, notify: bool = False) -> dict[str, Any]:
+    async def async_generate(self, kind: str | None = None, notify: bool = False, targets: list[str] | None = None) -> dict[str, Any]:
         async with self._lock:
             built = await self.builder.async_build(kind)
             system, prompt = self.builder.prompt(built)
@@ -120,10 +120,10 @@ class BriefingManager:
                 update()
             self.hass.bus.async_fire(EVENT_BRIEFING, {k: briefing[k] for k in ("title", "summary", "kind", "source")})
             if notify:
-                await self.async_notify(briefing)
+                await self.async_notify(briefing, targets)
             return briefing
 
-    async def async_notify(self, briefing: dict[str, Any]) -> None:
+    async def async_notify(self, briefing: dict[str, Any], targets: list[str] | None = None) -> None:
         lights = " ".join(f"{l['icon']}{l['level_icon']}" for l in briefing["lights"])
         message = briefing["summary"] + (f"\n{lights}" if lights else "")
         data = {
@@ -134,7 +134,7 @@ class BriefingManager:
             "clickAction": self.options.get(CONF_CLICK_PATH, DEFAULT_CLICK_PATH),
             "url": self.options.get(CONF_CLICK_PATH, DEFAULT_CLICK_PATH),
         }
-        for service in self.options.get(CONF_NOTIFY, []) or []:
+        for service in targets or self.options.get(CONF_NOTIFY, []) or []:
             name = service.removeprefix("notify.")
             try:
                 await self.hass.services.async_call(

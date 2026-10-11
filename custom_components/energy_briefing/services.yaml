@@ -16,3 +16,7 @@ generate:
       default: false
       selector:
         boolean:
+    notify_targets:
+      selector:
+        text:
+          multiple: true

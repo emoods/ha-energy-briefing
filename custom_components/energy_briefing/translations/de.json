@@ -194,6 +194,10 @@
         "notify": {
           "name": "Benachrichtigung senden",
           "description": "Auch an die eingestellten Handys schicken."
+        },
+        "notify_targets": {
+          "name": "Empfänger",
+          "description": "Statt der eingestellten Handys, z. B. notify.mobile_app_mein_handy."
         }
       }
     }

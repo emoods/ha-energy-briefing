@@ -25,6 +25,7 @@ GENERATE_SCHEMA = vol.Schema(
         vol.Optional("config_entry_id"): cv.string,
         vol.Optional("kind"): vol.In(KINDS),
         vol.Optional("notify", default=False): cv.boolean,
+        vol.Optional("notify_targets"): vol.All(cv.ensure_list, [cv.string]),
     }
 )
 
@@ -41,7 +42,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             raise ServiceValidationError("No loaded Energy Briefing entry found")
         result = None
         for entry in entries:
-            result = await entry.runtime_data.async_generate(call.data.get("kind"), call.data["notify"])
+            result = await entry.runtime_data.async_generate(
+                call.data.get("kind"), call.data["notify"], call.data.get("notify_targets")
+            )
         if call.return_response:
             return {k: result[k] for k in ("title", "summary", "details", "kind", "source", "generated_at")}
         return None

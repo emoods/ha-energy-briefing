@@ -194,6 +194,10 @@
         "notify": {
           "name": "Send notification",
           "description": "Also send it to the configured phones."
+        },
+        "notify_targets": {
+          "name": "Notify targets",
+          "description": "Override the configured phones, e.g. notify.mobile_app_my_phone."
         }
       }
     }
