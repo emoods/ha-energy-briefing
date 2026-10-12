@@ -78,6 +78,8 @@ If everything fails, a template briefing is sent anyway.
 ## Dashboard card
 
 The integration ships its own card – nothing to copy or install separately.
+It registers itself as a dashboard resource (storage-mode dashboards) and is
+updated automatically with every release.
 
 Dashboard → ✏️ Edit → **Add card** → search for **Energy Briefing**. The sensor is
 picked automatically; you can toggle traffic lights, outlook, details, buttons and footer.

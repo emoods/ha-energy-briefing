@@ -1,5 +1,5 @@
 /* Energy Briefing card – shipped with the energy_briefing integration. */
-const CARD_VERSION = "0.2.1";
+const CARD_VERSION = "0.2.2";
 
 const STRINGS = {
   en: {

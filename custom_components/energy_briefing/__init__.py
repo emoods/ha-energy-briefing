@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import logging
+
 import voluptuous as vol
 
 from homeassistant.components.frontend import add_extra_js_url
@@ -18,6 +20,8 @@ from homeassistant.loader import async_get_integration
 
 from .const import DOMAIN, KINDS
 from .manager import BriefingManager
+
+_LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -41,7 +45,38 @@ async def _async_register_card(hass: HomeAssistant) -> None:
     path = Path(__file__).parent / "frontend" / "energy-briefing-card.js"
     await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), False)])
     version = (await async_get_integration(hass, DOMAIN)).version
-    add_extra_js_url(hass, f"{CARD_URL}?v={version}")
+    url = f"{CARD_URL}?v={version}"
+    add_extra_js_url(hass, url)
+    try:
+        await _async_register_resource(hass, url)
+    except Exception:  # noqa: BLE001 - the card still loads via extra_js_url
+        _LOGGER.debug("Could not register the dashboard resource", exc_info=True)
+
+
+async def _async_register_resource(hass: HomeAssistant, url: str) -> None:
+    """Add the card as a Lovelace resource so dashboards always load it.
+
+    extra_js_url alone depends on the cached page; a resource is loaded by the
+    dashboard itself. Only storage-mode resources are managed.
+    """
+    lovelace = hass.data.get("lovelace")
+    resources = getattr(lovelace, "resources", None)
+    if resources is None or getattr(lovelace, "resource_mode", "storage") != "storage":
+        return
+    if not getattr(resources, "loaded", True):
+        await resources.async_load()
+        resources.loaded = True
+    ours = [
+        item for item in resources.async_items()
+        if str(item.get("url", "")).split("?")[0] == CARD_URL
+    ]
+    if not ours:
+        await resources.async_create_item({"res_type": "module", "url": url})
+        return
+    if ours[0].get("url") != url or ours[0].get("type") != "module":
+        await resources.async_update_item(ours[0]["id"], {"res_type": "module", "url": url})
+    for duplicate in ours[1:]:
+        await resources.async_delete_item(duplicate["id"])
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
